@@ -1,0 +1,1729 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Jungle Adventure - English Learning Game</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Import Tone.js for Sound Effects -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+  <style>
+    :root {
+      --primary-green: #2d6a4f;
+      --light-green: #52b788;
+      --accent-orange: #f39c12;
+      --wood-brown: #895737;
+      --sky-blue: #a8dadc;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    body {
+      font-family: 'Nunito', sans-serif;
+      background-color: #1a1a1a;
+      color: #333;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    /* Main Container Frame */
+    #game-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      max-width: 480px; 
+      max-height: 920px;
+      background: linear-gradient(to bottom, #a8dadc, #1b4332);
+      border-radius: 0px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    @media (min-width: 768px) {
+      #game-container {
+        border-radius: 20px;
+        height: 95vh;
+        max-height: 850px;
+        max-width: 450px;
+      }
+    }
+
+    .screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 60px 15px 20px 15px;
+      background-size: cover;
+      background-position: center;
+      box-sizing: border-box;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    /* Controls Header */
+    .global-controls {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 100;
+      display: flex;
+      gap: 10px;
+    }
+
+    .control-btn {
+      background: var(--wood-brown);
+      border: 2px solid #fff;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+      transition: transform 0.1s;
+      overflow: hidden;
+      padding: 0;
+    }
+
+    .control-btn img {
+      width: 22px;
+      height: 22px;
+      object-fit: contain;
+    }
+
+    .control-btn:active {
+      transform: scale(0.9);
+    }
+
+    /* --- SCREEN 1: WELCOME MENU --- */
+    #welcome-screen {
+      background: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.55)), url('https://i.imgur.com/DhUC65Q.jpg') center/cover no-repeat;
+      justify-content: center;
+      gap: 20px;
+      padding-top: 20px;
+    }
+
+    .welcome-hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .jungle-badge {
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      padding: 6px 18px;
+      border-radius: 20px;
+      color: #ffe66d;
+      font-weight: 800;
+      font-size: 0.85rem;
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+      backdrop-filter: blur(5px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+
+    .game-title-img {
+      width: 85%;
+      max-width: 300px;
+      margin-bottom: 10px;
+      animation: bounce 2s infinite ease-in-out;
+      filter: drop-shadow(0px 8px 12px rgba(0,0,0,0.4));
+    }
+
+    .login-box {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 20px 18px;
+      border-radius: 24px;
+      border: 4px solid var(--wood-brown);
+      text-align: center;
+      box-shadow: 0 12px 25px rgba(0,0,0,0.4);
+      width: 90%;
+      max-width: 320px;
+    }
+
+    .login-box label {
+      font-family: 'Fredoka One', cursive;
+      color: var(--wood-brown);
+      font-size: 1.1rem;
+      display: block;
+      margin-bottom: 10px;
+      letter-spacing: 0.5px;
+    }
+
+    .login-box input {
+      width: 100%;
+      padding: 10px;
+      border: 3px solid var(--light-green);
+      border-radius: 12px;
+      font-size: 1rem;
+      text-align: center;
+      font-weight: bold;
+      outline: none;
+      margin-bottom: 14px;
+      background: #f8f9fa;
+    }
+
+    .login-box input:focus {
+      border-color: var(--primary-green);
+      background: #ffffff;
+    }
+
+    .btn-start {
+      font-family: 'Fredoka One', cursive;
+      background: var(--accent-orange);
+      color: white;
+      border: 3px solid #fff;
+      padding: 10px 18px;
+      font-size: 1.1rem;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 5px 0px #b7791f;
+      transition: all 0.1s;
+      width: 100%;
+    }
+
+    .btn-start:active {
+      transform: translateY(4px);
+      box-shadow: 0 1px 0px #b7791f;
+    }
+
+    /* --- SCREEN 2: MAIN MAP --- */
+    #map-screen {
+      background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.5)), url('https://i.imgur.com/4T53G1n.png') center/cover no-repeat;
+      justify-content: flex-start;
+      gap: 15px;
+    }
+
+    .map-header {
+      font-family: 'Fredoka One', cursive;
+      background: rgba(137, 87, 55, 0.95);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 30px;
+      border: 3px solid white;
+      font-size: 1rem;
+      text-align: center;
+      width: 90%;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .map-gates-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      justify-content: center;
+      width: 100%;
+      align-items: center;
+      overflow-y: auto;
+      padding: 10px 0;
+    }
+
+    .gate-card {
+      background: rgba(255, 255, 255, 0.95);
+      border: 3px solid var(--primary-green);
+      border-radius: 18px;
+      width: 90%;
+      max-width: 320px;
+      padding: 12px 15px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      text-align: left;
+      cursor: pointer;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+      transition: transform 0.2s;
+    }
+
+    .gate-card:active {
+      transform: scale(0.98);
+    }
+
+    .gate-icon {
+      background: #e8f5e9;
+      padding: 8px;
+      border-radius: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 50px;
+      height: 50px;
+      min-width: 50px;
+      overflow: hidden;
+    }
+
+    .gate-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .gate-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .gate-title {
+      font-family: 'Fredoka One', cursive;
+      color: var(--primary-green);
+      font-size: 1.05rem;
+      margin-bottom: 2px;
+    }
+
+    .gate-desc {
+      font-size: 0.8rem;
+      color: #555;
+      line-height: 1.2;
+    }
+
+    /* --- SCREEN 3: SUB-MAP JALUR SETAPAK --- */
+    #submap-screen {
+      background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('https://i.imgur.com/4T53G1n.png') center/cover no-repeat;
+      justify-content: space-between;
+    }
+
+    .submap-container {
+      position: relative;
+      width: 92%;
+      height: 75%;
+      background: rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(4px);
+      border-radius: 24px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-items: center;
+      padding: 15px 10px;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.4);
+      overflow: hidden;
+    }
+
+    .map-path-svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .node-wrapper {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+    }
+
+    .node-wrapper:nth-child(2) {
+      justify-content: flex-start;
+      padding-left: 8%;
+    }
+
+    .node-wrapper:nth-child(3) {
+      justify-content: flex-start;
+      padding-left: 32%;
+    }
+
+    .node-wrapper:nth-child(4) {
+      justify-content: flex-start;
+      padding-left: 8%;
+    }
+
+    .node-point {
+      position: relative;
+      z-index: 2;
+      background: #ffffff;
+      border: 4px solid var(--accent-orange);
+      width: 62px;
+      height: 62px;
+      min-width: 62px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.35);
+      transition: transform 0.2s;
+      overflow: hidden;
+      padding: 8px;
+    }
+
+    .node-point:active {
+      transform: scale(0.92);
+    }
+
+    .node-icon-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .node-label {
+      position: relative;
+      background: var(--wood-brown);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 14px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      text-align: center;
+      line-height: 1.2;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      border: 2px solid white;
+      white-space: nowrap;
+      margin: 0 8px;
+    }
+
+    .btn-back {
+      font-family: 'Fredoka One', cursive;
+      background: #e63946;
+      color: white;
+      border: 2px solid white;
+      padding: 8px 18px;
+      border-radius: 20px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+      font-size: 0.85rem;
+      margin-top: 5px;
+      margin-bottom: 5px;
+      align-self: center;
+      flex-shrink: 0;
+    }
+
+    .quiz-menu-box {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 18px 15px;
+      border-radius: 20px;
+      border: 4px solid var(--wood-brown);
+      width: 90%;
+      max-width: 320px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 75vh;
+      overflow-y: auto;
+      margin: auto 0;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+    
+    .quiz-menu-btn {
+      background: var(--light-green);
+      color: white;
+      border: 2px solid var(--primary-green);
+      padding: 10px;
+      border-radius: 12px;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    
+    .quiz-menu-btn:active { transform: scale(0.95); }
+
+    /* Fill the blank styling */
+    .fb-blank {
+      display: inline-block;
+      min-width: 75px;
+      min-height: 28px;
+      border-bottom: 3px solid var(--wood-brown);
+      margin: 0 4px;
+      text-align: center;
+      color: var(--primary-green);
+      font-weight: bold;
+      cursor: pointer;
+      background: #e2e8f0;
+      border-radius: 6px;
+      padding: 2px 6px;
+      vertical-align: middle;
+      transition: all 0.2s;
+    }
+    
+    .fb-blank.filled {
+      background: var(--sky-blue);
+      border-color: #0077b6;
+      color: #004b73;
+    }
+
+    .fb-blank.selected-blank {
+      outline: 3px solid var(--accent-orange);
+      background: #fff3cd;
+    }
+    
+    .fb-word {
+      background: var(--sky-blue);
+      border: 2px solid #0077b6;
+      padding: 5px 10px;
+      border-radius: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 3px;
+      display: inline-block;
+      box-shadow: 0 3px 0 #005f73;
+      transition: all 0.1s;
+      font-size: 0.8rem;
+    }
+    
+    .fb-word:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #005f73;
+    }
+
+    .fb-word.used {
+      opacity: 0.3;
+      pointer-events: none;
+      text-decoration: line-through;
+    }
+
+    /* --- SCREEN 4: CONTENT DRAWER --- */
+    #content-screen {
+      background: #f4f1de;
+      justify-content: flex-start;
+      position: relative;
+    }
+
+    .content-box {
+      background: white;
+      width: 100%;
+      height: 90%;
+      border-radius: 18px;
+      border: 4px solid var(--wood-brown);
+      padding: 15px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+    }
+
+    .tenses-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .tenses-card {
+      background: #f1faee;
+      border: 2px solid var(--light-green);
+      padding: 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      text-align: center;
+      font-weight: bold;
+      font-size: 0.95rem;
+      color: var(--primary-green);
+      transition: all 0.2s;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.08);
+    }
+
+    .tenses-card:active, .tenses-card.active-card {
+      background: var(--light-green);
+      color: white;
+    }
+
+    .tense-nav-tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 12px;
+      background: #e2e8f0;
+      padding: 4px;
+      border-radius: 10px;
+    }
+
+    .tense-tab-btn {
+      flex: 1;
+      padding: 8px 4px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      background: transparent;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #495057;
+      transition: all 0.2s;
+    }
+
+    .tense-tab-btn.active {
+      background: var(--primary-green);
+      color: white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    }
+
+    .tense-section-content {
+      background: #f8f9fa;
+      border: 2px solid #dee2e6;
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+
+    .example-item {
+      background: white;
+      border-left: 4px solid var(--light-green);
+      padding: 8px 10px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    }
+
+    .example-en {
+      font-weight: 700;
+      color: #212529;
+    }
+
+    .example-id {
+      font-size: 0.8rem;
+      color: #6c757d;
+      margin-top: 2px;
+      font-style: italic;
+    }
+
+    /* --- SCREEN 5: JUNGLE JUMP QUIZ ENGINE --- */
+    #quiz-screen {
+      background: linear-gradient(to bottom, #8ecae6, #219ebc);
+      justify-content: space-between;
+      padding-top: 55px;
+    }
+
+    .quiz-hud {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      background: rgba(0,0,0,0.45);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 12px;
+      font-family: 'Fredoka One', cursive;
+      font-size: 0.8rem;
+    }
+
+    .question-box {
+      background: rgba(255,255,255,0.95);
+      border: 3px solid var(--wood-brown);
+      border-radius: 15px;
+      padding: 10px 12px;
+      width: 100%;
+      text-align: center;
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin: 8px 0;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .simulation-area {
+      position: relative;
+      width: 100%;
+      height: 150px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 15px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    .water-surface {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 30px;
+      background: #0077b6;
+      animation: wave 2s infinite linear;
+    }
+
+    .character-token {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 55px;
+      height: 55px;
+      z-index: 10;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .character-token img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3));
+    }
+
+    .character-token.jump {
+      animation: jumpAnim 0.5s ease-out;
+    }
+
+    .character-token.splash {
+      animation: sink 1s forwards ease-in;
+    }
+
+    .water-splash-effect {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 1.8rem;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .water-splash-effect.active {
+      animation: splashAnim 0.6s forwards;
+    }
+
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      width: 100%;
+    }
+
+    .leaf-option {
+      background: #4caf50;
+      background-image: linear-gradient(135deg, #4caf50, #2e7d32);
+      border: 2px solid #fff;
+      color: white;
+      padding: 8px 10px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      text-align: center;
+      box-shadow: 0 3px 0px #1b5e20;
+      transition: transform 0.1s;
+      width: 100%;
+    }
+
+    .leaf-option:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0px #1b5e20;
+    }
+
+    /* Keyframe Animations */
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    @keyframes wave {
+      0% { transform: translateX(0) scaleY(1); }
+      50% { transform: translateX(-5px) scaleY(1.05); }
+      100% { transform: translateX(0) scaleY(1); }
+    }
+
+    @keyframes sink {
+      0% { transform: translateX(-50%) translateY(0); }
+      30% { transform: translateX(-50%) translateY(-20px); opacity: 1; }
+      100% { transform: translateX(-50%) translateY(60px); opacity: 0; }
+    }
+
+    @keyframes splashAnim {
+      0% { transform: translateX(-50%) scale(0.5); opacity: 0; }
+      50% { opacity: 1; }
+      100% { transform: translateX(-50%) scale(1.5); opacity: 0; }
+    }
+    
+    @keyframes jumpAnim {
+      0% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-40px); }
+      100% { transform: translateX(-50%) translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="game-container">
+    <!-- Global Control Buttons -->
+    <div class="global-controls">
+      <button class="control-btn" id="audio-toggle" onclick="toggleBGM()" title="Music BGM">
+        <img id="audio-icon-img" src="https://i.imgur.com/M5nSC85.png" alt="Audio Muted">
+      </button>
+      <button class="control-btn" onclick="returnToHome()" title="Home">
+        <img src="https://i.imgur.com/8Q9Z5bX.png" alt="Home" style="width: 22px; height: 22px; object-fit: contain;" onerror="this.onerror=null; this.src='https://imgur.com/undefined';">
+      </button>
+    </div>
+
+    <!-- Custom Modal for Alerts -->
+    <div id="custom-modal" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; padding: 20px;">
+      <div class="login-box" style="border-color: var(--accent-orange); width: 100%;">
+        <p id="modal-message" style="font-weight: bold; margin-bottom: 20px; font-size: 1.05rem; color: #333; line-height: 1.4; white-space: pre-line;"></p>
+        <button class="btn-start" onclick="closeModal()">OK</button>
+      </div>
+    </div>
+
+    <!-- SCREEN 1: WELCOME SCREEN -->
+    <div id="welcome-screen" class="screen active">
+      <img src="https://i.imgur.com/GLtaHCS.png" alt="Mascot" style="position: absolute; bottom: 15px; right: 15px; width: 110px; height: auto; z-index: 10; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.5)); pointer-events: none;">
+      <div class="welcome-hero">
+        <div class="jungle-badge">🌴 ENGLISH LEARNING GAME 🌴</div>
+        <img src="https://i.imgur.com/tfchBec.png" alt="Jungle Adventure" class="game-title-img">
+      </div>
+      <div class="login-box">
+        <label for="username-input">WRITE YOUR NAME:</label>
+        <input type="text" id="username-input" placeholder="Your Name ..." maxlength="15" autocomplete="off">
+        <button class="btn-start" onclick="startAdventure()">SUBMIT</button>
+      </div>
+    </div>
+
+    <!-- SCREEN 2: MAIN MAP GATES -->
+    <div id="map-screen" class="screen">
+      <div class="map-header">Choose Your Gate, <span id="player-display">Player</span>!</div>
+      <div class="map-gates-container">
+        <div class="gate-card" onclick="openSubMap('Tenses')">
+          <div class="gate-icon">
+            <img src="https://i.imgur.com/65JP9zj.png" alt="Tenses Icon" onerror="this.onerror=null; this.src='https://imgur.com/undefined';">
+          </div>
+          <div class="gate-info">
+            <div class="gate-title">Learn Tenses</div>
+            <div class="gate-desc">Simple Past & Past Cont.</div>
+          </div>
+        </div>
+        <div class="gate-card" onclick="openSubMap('Recount Text')">
+          <div class="gate-icon">
+            <img src="https://i.imgur.com/Sch7abU.png" alt="Recount Text Icon" onerror="this.onerror=null; this.src='https://imgur.com/undefined';">
+          </div>
+          <div class="gate-info">
+            <div class="gate-title">Recount Text</div>
+            <div class="gate-desc">Tell stories about the past</div>
+          </div>
+        </div>
+        <div class="gate-card" onclick="openSubMap('Narrative Text')">
+          <div class="gate-icon">
+            <img src="https://i.imgur.com/ToWdXbR.png" alt="Narrative Text Icon" onerror="this.onerror=null; this.src='https://imgur.com/undefined';">
+          </div>
+          <div class="gate-info">
+            <div class="gate-title">Narrative Text</div>
+            <div class="gate-desc">Explore fairy tales & myths</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 3: SUBMAP PATH -->
+    <div id="submap-screen" class="screen">
+      <div class="map-header" id="submap-title">Path Way</div>
+      <div class="submap-container">
+        <!-- SVG Curved Trail Line -->
+        <svg class="map-path-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+          <path d="M 22 20 C 60 20, 80 40, 50 50 C 20 60, 40 80, 22 80" fill="none" stroke="rgba(0, 0, 0, 0.4)" stroke-width="6" stroke-linecap="round" stroke-dasharray="2, 3" />
+          <path d="M 22 20 C 60 20, 80 40, 50 50 C 20 60, 40 80, 22 80" fill="none" stroke="#ffe66d" stroke-width="4" stroke-linecap="round" stroke-dasharray="2, 3" />
+        </svg>
+        
+        <div class="node-wrapper" onclick="viewObjective()">
+          <div class="node-point">
+            <img src="https://i.imgur.com/K1FR6Ze.png" alt="Objective" class="node-icon-img">
+          </div>
+          <div class="node-label">Learning Objectives</div>
+        </div>
+
+        <div class="node-wrapper" onclick="viewMaterials()">
+          <div class="node-point">
+            <img src="https://i.imgur.com/GhgKOD2.png" alt="Material" class="node-icon-img">
+          </div>
+          <div class="node-label">Material</div>
+        </div>
+
+        <div class="node-wrapper" onclick="handleQuizClick()">
+          <div class="node-point">
+            <img src="https://i.imgur.com/DM3ll50.png" alt="Quiz" class="node-icon-img">
+          </div>
+          <div class="node-label">Quiz</div>
+        </div>
+      </div>
+      <button class="btn-back" onclick="navigateTo('map-screen')">❮ Back</button>
+    </div>
+
+    <!-- SCREEN 4: CONTENT DRAWER -->
+    <div id="content-screen" class="screen">
+      <div class="content-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <h2 id="content-title" style="color: var(--primary-green); font-family: 'Fredoka One', cursive; margin: 0; font-size: 1.1rem;">Material</h2>
+          
+          <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
+            <!-- Translate button -->
+            <button onclick="toggleTranslate()" id="translate-btn" style="background: var(--sky-blue); border: 2px solid #0077b6; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; cursor: pointer; color: #004b73; box-shadow: 0 2px 0 #005f73;">EN ⇄ ID</button>
+            
+            <!-- Key concept bulb relocated under translate button -->
+            <button id="key-concept-btn" onclick="toggleKeyConcept()" style="display: none; background: var(--accent-orange); color: white; border: 2px solid white; border-radius: 50%; width: 34px; height: 34px; box-shadow: 0 3px 6px rgba(0,0,0,0.3); cursor: pointer; padding: 0; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;">
+              <img src="https://i.imgur.com/VZ3XMzU.png" alt="Concept" style="width: 20px; height: 20px; object-fit: contain;" onerror="this.onerror=null; this.src='https://imgur.com/undefined';">
+            </button>
+          </div>
+        </div>
+
+        <!-- Key Concept Popup -->
+        <div id="key-concept-popup" style="display: none; position: absolute; top: 70px; right: 20px; width: 280px; background: white; border: 3px solid var(--accent-orange); border-radius: 12px; padding: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.3); z-index: 120; font-size: 0.8rem; line-height: 1.4;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 2px solid #eee; padding-bottom: 5px;">
+            <strong style="color: var(--accent-orange); font-family: 'Fredoka One', cursive; font-size: 0.95rem;">Key Concepts</strong>
+            <button onclick="toggleKeyConcept()" style="background: none; border: none; font-size: 1.1rem; cursor: pointer; color: #888;">✖</button>
+          </div>
+          <p><strong>Simple Past Tense:</strong> Action completed in the past.</p>
+          <p style="margin-top: 4px;"><strong>Past Continuous Tense:</strong> Action in progress at a past time.</p>
+          <p style="margin-top: 4px;"><strong>Key Tip:</strong> Simple Past uses V2 (played, went), while Past Continuous uses was/were + V-ing (was playing).</p>
+        </div>
+
+        <div id="content-body" style="flex-grow: 1; overflow-y: auto;">
+          <!-- JS dynamic content -->
+        </div>
+        <button class="btn-back" style="margin-top: 10px;" onclick="navigateTo('submap-screen')">❮ Back</button>
+      </div>
+    </div>
+
+    <!-- SCREEN 5: JUNGLE JUMP QUIZ ENGINE -->
+    <div id="quiz-screen" class="screen">
+      <div class="quiz-hud">
+        <div>Player: <span id="hud-name">Name</span></div>
+        <div>Lives: <span id="hud-lives">❤️❤️❤️</span></div>
+        <div>Score: <span id="hud-score">0</span></div>
+      </div>
+
+      <div class="question-box" id="current-question">
+        Loading Question...
+      </div>
+
+      <div class="simulation-area">
+        <div class="character-token" id="hero-avatar">
+          <img id="frog-avatar-img" src="https://i.imgur.com/kK1nuwr.png" alt="Frog" onerror="this.onerror=null; this.src='https://imgur.com/undefined';">
+        </div>
+        <div class="water-splash-effect" id="splash-effect">💦 Splash!</div>
+        <div class="water-surface"></div>
+      </div>
+
+      <div class="options-grid" id="quiz-options">
+        <!-- Dynamic Leaf Options -->
+      </div>
+      <button class="btn-back" style="margin-top: 10px;" onclick="abandonQuiz()">❮ Quit</button>
+    </div>
+
+    <!-- QUIZ SELECTION MENU -->
+    <div id="quiz-menu-screen" class="screen">
+      <div class="quiz-menu-box" id="quiz-menu-box-content">
+        <!-- Dynamic content based on topic -->
+      </div>
+      <button class="btn-back" onclick="navigateTo('submap-screen')">❮ Back</button>
+    </div>
+
+    <!-- READING HOLIC MENU -->
+    <div id="rh-menu-screen" class="screen">
+      <div class="quiz-menu-box">
+        <h2 style="color: var(--primary-green); font-family: 'Fredoka One', cursive; font-size: 1.1rem; margin-bottom: 5px;">Reading Holic</h2>
+        <div id="rh-text-list" style="display: flex; flex-direction: column; gap: 8px;">
+          <!-- Dynamic text buttons -->
+        </div>
+      </div>
+      <button class="btn-back" onclick="navigateTo('quiz-menu-screen')">❮ Back</button>
+    </div>
+
+    <!-- READING HOLIC TEXT & COMPREHENSION -->
+    <div id="rh-text-screen" class="screen" style="position: relative;">
+      <div class="content-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <h2 id="rh-title" style="color: var(--primary-green); font-family: 'Fredoka One', cursive; font-size: 1.05rem; margin: 0; text-align: left;">Text</h2>
+          <button id="rh-vocab-btn" onclick="toggleRHVocab()" style="display: none; background: var(--accent-orange); color: white; border: 2px solid white; border-radius: 50%; width: 36px; height: 36px; min-width: 36px; box-shadow: 0 3px 6px rgba(0,0,0,0.3); cursor: pointer; padding: 0; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;" title="Vocabulary List">
+            💡
+          </button>
+        </div>
+
+        <div id="rh-vocab-popup" style="display: none; position: absolute; top: 60px; right: 15px; width: 280px; max-height: 320px; overflow-y: auto; background: white; border: 3px solid var(--accent-orange); border-radius: 12px; padding: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.3); z-index: 120; font-size: 0.8rem; line-height: 1.4;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 2px solid #eee; padding-bottom: 5px;">
+            <strong style="color: var(--accent-orange); font-family: 'Fredoka One', cursive; font-size: 0.95rem;">💡 Vocabulary List</strong>
+            <button onclick="toggleRHVocab()" style="background: none; border: none; font-size: 1.1rem; cursor: pointer; color: #888;">✖</button>
+          </div>
+          <div id="rh-vocab-content"></div>
+        </div>
+
+        <div id="rh-body" style="font-size: 0.8rem; line-height: 1.5; margin-bottom: 12px; max-height: 200px; overflow-y: auto; background: #fafafa; padding: 10px; border-radius: 10px; border: 1px solid #ddd;">
+        </div>
+        
+        <div id="rh-essay-container" style="display:flex; flex-direction:column; gap:8px; overflow-y: auto; flex-grow: 1;">
+          <!-- Questions -->
+        </div>
+
+        <button class="btn-back" style="margin-top: 10px;" onclick="navigateTo('rh-menu-screen')">❮ Back</button>
+      </div>
+    </div>
+
+    <!-- FILL THE BLANK SCREEN -->
+    <div id="fill-blank-screen" class="screen" style="background: #f4f1de;">
+      <div class="content-box">
+        <h2 id="fb-story-title" style="color: var(--primary-green); font-family: 'Fredoka One', cursive; text-align: center; font-size: 1.05rem;">Fill The Blank</h2>
+        
+        <div style="font-size: 0.75rem; font-weight: bold; color: var(--wood-brown); margin: 6px 0 2px 0;">Word Box:</div>
+        <div id="fb-word-bank" style="text-align: center; min-height: 45px; max-height: 100px; overflow-y: auto; background: #e9ecef; padding: 6px; border-radius: 12px; margin-bottom: 8px; display: flex; flex-wrap: wrap; justify-content: center; align-items: center;">
+          <!-- Words -->
+        </div>
+
+        <div style="font-size: 0.75rem; font-weight: bold; color: #555; margin-bottom: 4px;">Click the blank space `[____]`, then choose a word from the Word Box above:</div>
+        <div id="fb-story-container" style="font-size: 0.8rem; line-height: 1.7; margin-bottom: 10px; background: #f8f9fa; padding: 10px; border-radius: 12px; border: 2px dashed var(--light-green); flex-grow: 1; overflow-y: auto;">
+          <!-- Sentences -->
+        </div>
+        
+        <button class="btn-start" style="padding: 8px; font-size: 0.95rem;" onclick="checkAllFillBlank()">Submit & Check Score</button>
+        <button class="btn-back" style="margin-top: 6px;" onclick="navigateTo('quiz-menu-screen')">❮ Back</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentTopic = "";
+    let playerName = "";
+    let score = 0;
+    let lives = 3;
+    let currentQuestionIndex = 0;
+    let currentLang = 'en'; 
+    let activeTense = 'Simple Past'; 
+    let activeTenseTab = 'meaning';
+    let activeRecountTab = 'meaning';
+
+    // Tone.js Audio Setup
+    let isMuted = true;
+    let synth = null;
+    let loop = null;
+
+    function initAudio() {
+      if (!synth) {
+        synth = new Tone.PolySynth(Tone.Synth).toDestination();
+        synth.volume.value = -12;
+      }
+    }
+
+    function toggleBGM() {
+      initAudio();
+      Tone.start();
+      isMuted = !isMuted;
+      
+      const audioIcon = document.getElementById('audio-icon-img');
+      if (isMuted) {
+        audioIcon.src = "https://i.imgur.com/M5nSC85.png";
+        if (loop) loop.stop();
+      } else {
+        audioIcon.src = "https://i.imgur.com/gakMgQg.png";
+        if (!loop) {
+          const notes = ["C4", "E4", "G4", "B4", "A4", "F4"];
+          let index = 0;
+          loop = new Tone.Loop(time => {
+            synth.triggerAttackRelease(notes[index % notes.length], "8n", time);
+            index++;
+          }, "4n");
+        }
+        loop.start(0);
+        Tone.Transport.start();
+      }
+    }
+
+    function playJumpSound() {
+      if (isMuted || !synth) return;
+      synth.triggerAttackRelease(["C5", "G5"], "16n");
+    }
+
+    function playSplashSound() {
+      if (isMuted || !synth) return;
+      synth.triggerAttackRelease(["C2", "C1"], "8n");
+    }
+
+    function playWinSound() {
+      if (isMuted || !synth) return;
+      synth.triggerAttackRelease(["C4", "E4", "G4", "C5"], "8n");
+    }
+
+    const tensesData = {
+      'Simple Past': {
+        meaning: {
+          en: "<p><strong>Simple Past Tense</strong> is used to express events or actions that were completed at a specific time in the past.</p>",
+          id: "<p><strong>Simple Past Tense</strong> digunakan untuk menyatakan peristiwa atau kegiatan yang sudah selesai terjadi pada masa lalu.</p>"
+        },
+        function: {
+          en: "<ul style='margin-left:18px;'><li>To talk about past actions that are finished.</li><li>To describe past habits or repeated events.</li><li>To tell stories or events in chronological order.</li></ul>",
+          id: "<ul style='margin-left:18px;'><li>Menceritakan kegiatan di masa lalu yang sudah selesai.</li><li>Menjelaskan kebiasaan di masa lalu.</li><li>Menceritakan peristiwa atau cerita masa lalu secara berurutan.</li></ul>"
+        },
+        formula: {
+          en: "<div style='line-height:1.6;'><strong>(+) Positive:</strong> Subject + Verb 2 + Object<br><em>Example: She played football yesterday.</em><br><br><strong>(-) Negative:</strong> Subject + did not (didn't) + Verb 1 + Object<br><em>Example: She didn't play football yesterday.</em><br><br><strong>(?) Interrogative:</strong> Did + Subject + Verb 1 + Object?<br><em>Example: Did she play football yesterday?</em></div>",
+          id: "<div style='line-height:1.6;'><strong>(+) Positif:</strong> Subjek + Kata Kerja 2 (Verb 2) + Objek<br><em>Contoh: She played football yesterday.</em><br><br><strong>(-) Negatif:</strong> Subjek + did not (didn't) + Kata Kerja 1 (Verb 1) + Objek<br><em>Contoh: She didn't play football yesterday.</em><br><br><strong>(?) Tanya:</strong> Did + Subjek + Kata Kerja 1 (Verb 1) + Objek?<br><em>Contoh: Did she play football yesterday?</em></div>"
+        },
+        example: [
+          { en: "I visited my grandmother last week.", id: "Saya mengunjungi nenek saya minggu lalu." },
+          { en: "They did not watch the movie yesterday.", id: "Mereka tidak menonton film itu kemarin." },
+          { en: "Did you buy a new book two days ago?", id: "Apakah kamu membeli buku baru dua hari yang lalu?" }
+        ]
+      },
+      'Past Continuous': {
+        meaning: {
+          en: "<p><strong>Past Continuous Tense</strong> is used to describe an action that was happening at a specific moment in the past.</p>",
+          id: "<p><strong>Past Continuous Tense</strong> digunakan untuk menyatakan kegiatan yang sedang berlangsung pada waktu tertentu di masa lalu.</p>"
+        },
+        function: {
+          en: "<ul style='margin-left:18px;'><li>To show an action that was in progress in the past.</li><li>To express two actions happening at the same time in the past.</li><li>To describe an ongoing action interrupted by another event.</li></ul>",
+          id: "<ul style='margin-left:18px;'><li>Menyatakan aksi yang sedang berlangsung pada masa lalu.</li><li>Menyatakan dua kejadian yang terjadi bersamaan di masa lalu.</li><li>Menjelaskan peristiwa yang sedang terjadi ketika peristiwa lain menyela.</li></ul>"
+        },
+        formula: {
+          en: "<div style='line-height:1.6;'><strong>(+) Positive:</strong> Subject + was/were + Verb-ing + Object<br><em>Example: I was reading a book.</em><br><br><strong>(-) Negative:</strong> Subject + was/were not + Verb-ing + Object<br><em>Example: I was not reading a book.</em><br><br><strong>(?) Interrogative:</strong> Was/Were + Subject + Verb-ing + Object?<br><em>Example: Were you reading a book?</em></div>",
+          id: "<div style='line-height:1.6;'><strong>(+) Positif:</strong> Subjek + was/were + Verb-ing + Objek<br><em>Contoh: I was reading a book.</em><br><br><strong>(-) Negatif:</strong> Subjek + was/were not + Verb-ing + Objek<br><em>Contoh: I was not reading a book.</em><br><br><strong>(?) Tanya:</strong> Was/Were + Subjek + Verb-ing + Objek?<br><em>Contoh: Were you reading a book?</em></div>"
+        },
+        example: [
+          { en: "She was studying when I called her.", id: "Dia sedang belajar ketika saya meneleponnya." },
+          { en: "They were playing football at 4 PM yesterday.", id: "Mereka sedang bermain sepak bola jam 4 sore kemarin." },
+          { en: "Was it raining when you left the school?", id: "Apakah hujan sedang turun saat kamu keluar dari sekolah?" }
+        ]
+      }
+    };
+
+    const recountData = {
+      meaning: {
+        en: "<p><strong>Recount Text</strong> is a text that retells past events, experiences, or activities in chronological order (the order in which they happened).</p>",
+        id: "<p><strong>Recount Text</strong> adalah teks yang berfungsi untuk menceritakan kembali suatu peristiwa, kejadian, atau pengalaman yang terjadi di masa lalu secara kronologis (berurutan).</p>"
+      },
+      purpose: {
+        en: "<ul style='margin-left:18px; line-height:1.6;'><li>To inform the reader about a series of past events.</li><li>To motivate and act as a tool for self-reflection.</li><li>To document important personal moments (in a diary or journal).</li><li>To entertain readers through exciting stories.</li></ul>",
+        id: "<ul style='margin-left:18px; line-height:1.6;'><li>Menginformasikan rangkaian peristiwa masa lalu.</li><li>Memotivasi dan menjadi bahan refleksi diri.</li><li>Mendokumentasikan peristiwa penting (seperti di diary atau jurnal).</li><li>Menghibur pembaca melalui cerita yang seru.</li></ul>"
+      },
+      structure: {
+        en: "<div style='line-height:1.6;'><strong>1. Orientation (Introduction):</strong> Introduces who was involved, when it happened, and where it took place.<br><br><strong>2. Series of Events:</strong> Tells the events in the exact order they happened.<br><br><strong>3. Reorientation (Closing):</strong> The writer's conclusion, personal thoughts, or feelings about the event.</div>",
+        id: "<div style='line-height:1.6;'><strong>1. Orientation (Pendahuluan):</strong> Mengenalkan siapa yang terlibat, kapan terjadi, dan di mana tempat kejadiannya.<br><br><strong>2. Series of Events (Urutan Kejadian):</strong> Isi teks berupa rangkaian aksi/kejadian yang berurutan.<br><br><strong>3. Reorientation (Penutup):</strong> Berisi kesimpulan atau kesan/perasaan pribadi penulis.</div>"
+      },
+      types: {
+        en: "<div style='line-height:1.6;'><strong>1. Personal Recount:</strong> Retells the writer's personal experience (the most common type).<br><br><strong>2. Factual Recount:</strong> Reports actual past facts (such as news, science experiments, or police reports).<br><br><strong>3. Imaginative Recount:</strong> Retells an imaginary event or dream experienced by someone.</div>",
+        id: "<div style='line-height:1.6;'><strong>1. Personal Recount:</strong> Cerita pengalaman pribadi penulis (jenis paling umum).<br><br><strong>2. Factual Recount:</strong> Laporan peristiwa nyata (laporan ilmiah, laporan polisi, berita).<br><br><strong>3. Imaginative Recount:</strong> Cerita khayalan atau mimpi yang dialami seseorang.</div>"
+      },
+      language: {
+        en: "<div style='line-height:1.6;'><strong>1. Simple Past Tense:</strong> Uses past verb forms (Verb 2 or was/were).<br><em>Examples: I ran, It was hard.</em><br><br><strong>2. Adverbs of Time:</strong> Time words indicating the past.<br><em>Examples: Yesterday, last week, two days ago.</em><br><br><strong>3. Adverbs of Sequence:</strong> Time connectors to sequence the events.<br><em>Examples: First, then, after that, finally.</em></div>",
+        id: "<div style='line-height:1.6;'><strong>1. Simple Past Tense:</strong> Menggunakan kata kerja bentuk lampau (V2 atau was/were).<br><em>Contoh: I ran, It was hard.</em><br><br><strong>2. Adverb of Time:</strong> Keterangan waktu lampau.<br><em>Contoh: Yesterday, last week.</em><br><br><strong>3. Adverb of Sequence:</strong> Keterangan urutan waktu.<br><em>Contoh: First, then, after that, finally.</em></div>"
+      },
+      example: [
+        { 
+          en: "(Orientation) Last month, I joined my first marathon contest.", 
+          id: "(Orientation / Pendahuluan) Bulan lalu, saya mengikuti lomba maraton pertama saya." 
+        },
+        { 
+          en: "(Series of Events) First, I woke up early. When the marathon started, I ran fast. After some kilometers, I got tired and just jogged. Finally, I finished the race.", 
+          id: "(Series of Events / Urutan Kejadian) Pertama, saya bangun pagi-pagi. Ketika maraton dimulai, saya berlari cepat. Setelah beberapa kilometer, saya merasa lelah dan hanya berlari kecil. Akhirnya, saya berhasil menyelesaikan perlombaan." 
+        },
+        { 
+          en: "(Reorientation) It was exhausting, but it was a very wonderful experience for me.", 
+          id: "(Reorientation / Penutup) Itu sangat menguras tenaga, tetapi menjadi pengalaman yang sangat luar biasa bagi saya." 
+        }
+      ]
+    };
+
+    const quizDatabase = {
+      "Tenses": [
+        { q: "She _____ to the jungle yesterday.", a: ["go", "went", "gone", "going"], right: 1 },
+        { q: "They _____ playing football at 4 PM.", a: ["was", "were", "is", "are"], right: 1 },
+        { q: "Did you _____ a new monkey last night?", a: ["see", "saw", "seen", "seeing"], right: 0 },
+        { q: "While I was walking, it _____ to rain.", a: ["start", "started", "starting", "was start"], right: 1 },
+        { q: "I _____ not watch TV yesterday.", a: ["do", "did", "was", "were"], right: 1 }
+      ],
+      "Recount Text": [
+        { q: "What is the primary purpose of a Recount Text?", a: ["To teach a lesson", "To retell past events", "To persuade readers", "To explain a process"], right: 1 },
+        { q: "Which part of Recount Text introduces who, when, and where?", a: ["Orientation", "Events", "Reorientation", "Resolution"], right: 0 },
+        { q: "Which tense is mostly used in Recount Text?", a: ["Simple Present", "Simple Past", "Future Tense", "Present Perfect"], right: 1 }
+      ]
+    };
+
+    const readingHolicDatabase = {
+      "Tenses": [
+        {
+          title: "A Day in the Jungle",
+          text: "Yesterday, Sam walked into the dense jungle. He was looking for rare colorful birds. Suddenly, he heard a loud noise behind the tall bushes.",
+          vocab: "<b>Dense:</b> Lebat<br><b>Bushes:</b> Semak-semak<br><b>Rare:</b> Langka",
+          questions: ["1. Where did Sam go yesterday?", "2. What was Sam looking for?", "3. What did Sam hear behind the bushes?"]
+        }
+      ],
+      "Recount Text": [
+        {
+          title: "Independence Day Visit",
+          text: "Last August 17th, my classmates and I decided to celebrate Indonesia's Independence Day in a different way. Instead of just attending the school's flag ceremony and joining the competitions, we wanted to do something more meaningful. We planned to visit a nearby orphanage to share our joy and blessings with the children there. On the day of the visit, we arrived at the orphanage early in the morning, bringing various items such as clothes, toys, and snacks.<br><br>When we arrived, the orphanage staff and children welcomed us warmly. We immediately started interacting with the children, playing games, and sharing stories. The children were so happy and excited to see us. Their smiles filled the orphanage with warmth.<br><br>After spending quality time with the children, we handed over the donated items to the orphanage staff. We also had lunch together, sharing food and laughter. The experience was truly heartwarming. We learnt that we are very lucky and that it's important to help others who are not as lucky as we are.",
+          vocab: "<b>Classmates:</b> Teman sekelas<br><b>Celebrate:</b> Merayakan<br><b>Instead of:</b> Daripada / Alih-alih<br><b>Attend:</b> Menghadiri<br><b>Meaningful:</b> Bermakna<br><b>Orphanage:</b> Panti asuhan<br><b>Share:</b> Berbagi<br><b>Blessings:</b> Berkat / Karunia<br><b>Arrive:</b> Tiba / Sampai<br><b>Staff:</b> Staf / Karyawan<br><b>Welcomed warmly:</b> Menyambut dengan hangat<br><b>Interact:</b> Berinteraksi<br><b>Excited:</b> Bersemangat / Gembira<br><b>Hand over:</b> Menyerahkan<br><b>Donated items:</b> Barang-barang sumbangan<br><b>Laughter:</b> Tawa / Gelak tawa<br><b>Heartwarming:</b> Menyentuh hati<br><b>Lucky:</b> Beruntung",
+          questions: [
+            "1. Why did the writer and their classmates prefer going to the orphanage over participating in the school's competitions?",
+            "2. What can you infer about the children's feelings from the phrase \"Their smiles filled the orphanage with warmth\"?",
+            "3. What did the writer and their classmates do right after they arrived at the orphanage?",
+            "4. How did the students show their care and support for the orphanage during the visit?",
+            "5. What moral lesson did the students get after spending time with the children at the orphanage?"
+          ]
+        }
+      ],
+      "Narrative Text": [
+        {
+          title: "The Smart Monkey and Crocodile",
+          text: "Once upon a time, a clever monkey lived on a large apple tree near a river. A hungry crocodile wanted to catch him, but the monkey tricked him using his intelligence.",
+          vocab: "<b>Clever:</b> Cerdas<br><b>Tricked:</b> Menipu/Mengelabui<br><b>Intelligence:</b> Kecerdasan",
+          questions: ["1. Where did the clever monkey live?", "2. Who wanted to catch the monkey?", "3. How did the monkey save himself?"]
+        }
+      ]
+    };
+
+    const fillBlankDatabase = {
+      "Narrative Text": {
+        title: "The Tiger and The Brave Rabbit",
+        wordBox: ["lived", "forest", "found", "decided", "walked", "saw", "tricked", "ran", "escaped", "happy"],
+        sentences: [
+          { textBefore: "Long ago, a brave rabbit ", answer: "lived", textAfter: " in a green jungle." },
+          { textBefore: "One day, he went exploring the deep ", answer: "forest", textAfter: " near the mountain." },
+          { textBefore: "Suddenly, he ", answer: "found", textAfter: " a big hungry tiger behind a giant tree." },
+          { textBefore: "The rabbit ", answer: "decided", textAfter: " not to panic at all." },
+          { textBefore: "He slowly ", answer: "walked", textAfter: " toward the tiger with a giant leaf." },
+          { textBefore: "The tiger ", answer: "saw", textAfter: " the rabbit approaching fearlessly." },
+          { textBefore: "The smart rabbit ", answer: "tricked", textAfter: " the tiger into thinking a storm was coming." },
+          { textBefore: "The scared tiger ", answer: "ran", textAfter: " away as fast as possible." },
+          { textBefore: "The rabbit easily ", answer: "escaped", textAfter: " from danger." },
+          { textBefore: "Finally, the rabbit lived ", answer: "happy", textAfter: " ever after." }
+        ]
+      }
+    };
+
+    let selectedBlankId = null;
+
+    function showMessage(msg) {
+      document.getElementById('modal-message').innerText = msg;
+      document.getElementById('custom-modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('custom-modal').style.display = 'none';
+    }
+
+    function navigateTo(screenId) {
+      document.querySelectorAll('.screen').forEach(s => {
+        if(s.id !== 'custom-modal') s.classList.remove('active');
+      });
+      document.getElementById(screenId).classList.add('active');
+    }
+
+    function returnToHome() {
+      navigateTo('welcome-screen');
+    }
+
+    function startAdventure() {
+      const input = document.getElementById('username-input').value.trim();
+      if (input === "") {
+        showMessage("Please write your name first to start the adventure!");
+        return;
+      }
+      initAudio();
+      playerName = input;
+      document.getElementById('player-display').innerText = playerName;
+      document.getElementById('hud-name').innerText = playerName;
+      navigateTo('map-screen');
+    }
+
+    function openSubMap(topicName) {
+      currentTopic = topicName;
+      document.getElementById('submap-title').innerText = topicName;
+      navigateTo('submap-screen');
+    }
+
+    function viewObjective() {
+      document.getElementById('content-title').innerText = "🎯 Learning Objectives";
+      const keyConceptBtn = document.getElementById('key-concept-btn');
+      if (keyConceptBtn) keyConceptBtn.style.display = "none";
+
+      let objectiveHTML = `
+        <div class="lang-text" 
+          data-en="<p style='font-size:0.9rem; line-height:1.5;'>After completing this <strong>${currentTopic}</strong> section, students are expected to be able to:</p><ul style='margin-left: 18px; margin-top: 10px; line-height:1.6; font-size: 0.85rem;'><li>Identify the social function and structure of ${currentTopic}.</li><li>Analyze linguistic elements and keywords accurately.</li><li>Complete the quizzes successfully.</li></ul>" 
+          data-id="<p style='font-size:0.9rem; line-height:1.5;'>Setelah menyelesaikan bagian <strong>${currentTopic}</strong> ini, siswa diharapkan mampu:</p><ul style='margin-left: 18px; margin-top: 10px; line-height:1.6; font-size: 0.85rem;'><li>Mengidentifikasi fungsi sosial dan struktur dari ${currentTopic}.</li><li>Menganalisis unsur kebahasaan dan kata kunci secara tepat.</li><li>Menyelesaikan kuis dengan baik.</li></ul>">
+          ${currentLang === 'en' 
+            ? `<p style='font-size:0.9rem; line-height:1.5;'>After completing this <strong>${currentTopic}</strong> section, students are expected to be able to:</p><ul style='margin-left: 18px; margin-top: 10px; line-height:1.6; font-size: 0.85rem;'><li>Identify the social function and structure of ${currentTopic}.</li><li>Analyze linguistic elements and keywords accurately.</li><li>Complete the quizzes successfully.</li></ul>`
+            : `<p style='font-size:0.9rem; line-height:1.5;'>Setelah menyelesaikan bagian <strong>${currentTopic}</strong> ini, siswa diharapkan mampu:</p><ul style='margin-left: 18px; margin-top: 10px; line-height:1.6; font-size: 0.85rem;'><li>Mengidentifikasi fungsi sosial dan struktur dari ${currentTopic}.</li><li>Menganalisis unsur kebahasaan dan kata kunci secara tepat.</li><li>Menyelesaikan kuis dengan baik.</li></ul>`}
+        </div>
+      `;
+      
+      document.getElementById('content-body').innerHTML = objectiveHTML;
+      navigateTo('content-screen');
+    }
+
+    function viewMaterials() {
+      document.getElementById('content-title').innerText = "📖 Material: " + currentTopic;
+      let bodyHTML = "";
+
+      const keyConceptBtn = document.getElementById('key-concept-btn');
+      const keyConceptPopup = document.getElementById('key-concept-popup');
+      if (keyConceptBtn && keyConceptPopup) {
+        keyConceptBtn.style.display = currentTopic === "Tenses" ? "flex" : "none";
+        keyConceptPopup.style.display = "none";
+      }
+
+      if (currentTopic === "Tenses") {
+        bodyHTML = `
+          <p style="font-size:0.8rem; color:#555; margin-bottom: 8px;" class="lang-text" data-en="Choose a tense below:" data-id="Pilih tense di bawah ini:">
+            ${currentLang === 'en' ? 'Choose a tense below:' : 'Pilih tense di bawah ini:'}
+          </p>
+          
+          <div class="tenses-grid">
+            <div id="card-simple-past" class="tenses-card ${activeTense === 'Simple Past' ? 'active-card' : ''}" onclick="selectTense('Simple Past')">1. Simple Past Tense</div>
+            <div id="card-past-cont" class="tenses-card ${activeTense === 'Past Continuous' ? 'active-card' : ''}" onclick="selectTense('Past Continuous')">2. Past Continuous Tense</div>
+          </div>
+
+          <div id="tense-detail-box" style="margin-top: 12px;"></div>
+        `;
+        document.getElementById('content-body').innerHTML = bodyHTML;
+        renderTenseDetail();
+      } else if (currentTopic === "Recount Text") {
+        bodyHTML = `<div id="recount-detail-box"></div>`;
+        document.getElementById('content-body').innerHTML = bodyHTML;
+        renderRecountDetail();
+      } else {
+        bodyHTML = `
+          <div class="lang-text" 
+            data-en="<h3 style='color: var(--primary-green); font-size: 1rem; margin-bottom: 6px;'>Narrative Text</h3><p style='line-height:1.5; font-size: 0.85rem;'>Fictional story, legend, or myth created to entertain the readers.</p><br><p style='font-size: 0.85rem;'><strong>Generic Structure:</strong></p><ul style='margin-left: 18px; line-height:1.5; font-size: 0.8rem;'><li><strong>Orientation:</strong> Introduces the characters, place, and time.</li><li><strong>Complication:</strong> The conflict or main problem begins to arise.</li><li><strong>Resolution:</strong> The problem is solved (happy or sad ending).</li></ul>"
+            data-id="<h3 style='color: var(--primary-green); font-size: 1rem; margin-bottom: 6px;'>Narrative Text (Teks Naratif)</h3><p style='line-height:1.5; font-size: 0.85rem;'>Cerita fiksi, legenda, atau dongeng yang dibuat untuk menghibur para pembaca.</p><br><p style='font-size: 0.85rem;'><strong>Struktur Umum (Generic Structure):</strong></p><ul style='margin-left: 18px; line-height:1.5; font-size: 0.8rem;'><li><strong>Orientation (Pengenalan):</strong> Mengenalkan tokoh, tempat, dan waktu cerita.</li><li><strong>Complication (Konflik/Masalah):</strong> Masalah utama mulai muncul dalam cerita.</li><li><strong>Resolution (Penyelesaian):</strong> Masalah berhasil diatasi (akhir bahagia/sedih).</li></ul>">
+            ${currentLang === 'en'
+              ? "<h3 style='color: var(--primary-green); font-size: 1rem; margin-bottom: 6px;'>Narrative Text</h3><p style='line-height:1.5; font-size: 0.85rem;'>Fictional story, legend, or myth created to entertain the readers.</p><br><p style='font-size: 0.85rem;'><strong>Generic Structure:</strong></p><ul style='margin-left: 18px; line-height:1.5; font-size: 0.8rem;'><li><strong>Orientation:</strong> Introduces the characters, place, and time.</li><li><strong>Complication:</strong> The conflict or main problem begins to arise.</li><li><strong>Resolution:</strong> The problem is solved (happy or sad ending).</li></ul>"
+              : "<h3 style='color: var(--primary-green); font-size: 1rem; margin-bottom: 6px;'>Narrative Text (Teks Naratif)</h3><p style='line-height:1.5; font-size: 0.85rem;'>Cerita fiksi, legenda, atau dongeng yang dibuat untuk menghibur para pembaca.</p><br><p style='font-size: 0.85rem;'><strong>Struktur Umum (Generic Structure):</strong></p><ul style='margin-left: 18px; line-height:1.5; font-size: 0.8rem;'><li><strong>Orientation (Pengenalan):</strong> Mengenalkan tokoh, tempat, dan waktu cerita.</li><li><strong>Complication (Konflik/Masalah):</strong> Masalah utama mulai muncul dalam cerita.</li><li><strong>Resolution (Penyelesaian):</strong> Masalah berhasil diatasi (akhir bahagia/sedih).</li></ul>"
+            }
+          </div>
+        `;
+        document.getElementById('content-body').innerHTML = bodyHTML;
+      }
+
+      navigateTo('content-screen');
+    }
+
+    function selectTense(tenseName) {
+      activeTense = tenseName;
+      document.querySelectorAll('.tenses-card').forEach(c => c.classList.remove('active-card'));
+      if(tenseName === 'Simple Past') {
+        document.getElementById('card-simple-past').classList.add('active-card');
+      } else {
+        document.getElementById('card-past-cont').classList.add('active-card');
+      }
+      renderTenseDetail();
+    }
+
+    function selectTenseTab(tabName) {
+      activeTenseTab = tabName;
+      renderTenseDetail();
+    }
+
+    function renderTenseDetail() {
+      const container = document.getElementById('tense-detail-box');
+      if (!container) return;
+
+      const tenseInfo = tensesData[activeTense];
+      const navHTML = `
+        <div class="tense-nav-tabs">
+          <button class="tense-tab-btn ${activeTenseTab === 'meaning' ? 'active' : ''}" onclick="selectTenseTab('meaning')">Meaning</button>
+          <button class="tense-tab-btn ${activeTenseTab === 'function' ? 'active' : ''}" onclick="selectTenseTab('function')">Function</button>
+          <button class="tense-tab-btn ${activeTenseTab === 'formula' ? 'active' : ''}" onclick="selectTenseTab('formula')">Formula</button>
+          <button class="tense-tab-btn ${activeTenseTab === 'example' ? 'active' : ''}" onclick="selectTenseTab('example')">Example</button>
+        </div>
+      `;
+
+      let contentHTML = "";
+      if (activeTenseTab === 'meaning') {
+        contentHTML = tenseInfo.meaning[currentLang];
+      } else if (activeTenseTab === 'function') {
+        contentHTML = tenseInfo.function[currentLang];
+      } else if (activeTenseTab === 'formula') {
+        contentHTML = tenseInfo.formula[currentLang];
+      } else if (activeTenseTab === 'example') {
+        contentHTML = tenseInfo.example.map(item => `
+          <div class="example-item">
+            <div class="example-en">${item.en}</div>
+            <div class="example-id">${currentLang === 'id' ? 'Terjemahan: ' + item.id : ''}</div>
+          </div>
+        `).join('');
+      }
+
+      container.innerHTML = navHTML + `<div class="tense-section-content">${contentHTML}</div>`;
+    }
+
+    function selectRecountTab(tabName) {
+      activeRecountTab = tabName;
+      renderRecountDetail();
+    }
+
+    function renderRecountDetail() {
+      const container = document.getElementById('recount-detail-box');
+      if (!container) return;
+
+      const navHTML = `
+        <div class="tense-nav-tabs" style="flex-wrap: wrap;">
+          <button class="tense-tab-btn ${activeRecountTab === 'meaning' ? 'active' : ''}" onclick="selectRecountTab('meaning')">Meaning</button>
+          <button class="tense-tab-btn ${activeRecountTab === 'purpose' ? 'active' : ''}" onclick="selectRecountTab('purpose')">Purpose</button>
+          <button class="tense-tab-btn ${activeRecountTab === 'structure' ? 'active' : ''}" onclick="selectRecountTab('structure')">Structure</button>
+          <button class="tense-tab-btn ${activeRecountTab === 'types' ? 'active' : ''}" onclick="selectRecountTab('types')">Types</button>
+          <button class="tense-tab-btn ${activeRecountTab === 'language' ? 'active' : ''}" onclick="selectRecountTab('language')">Language</button>
+          <button class="tense-tab-btn ${activeRecountTab === 'example' ? 'active' : ''}" onclick="selectRecountTab('example')">Example</button>
+        </div>
+      `;
+
+      let contentHTML = "";
+      if (activeRecountTab === 'meaning') {
+        contentHTML = recountData.meaning[currentLang];
+      } else if (activeRecountTab === 'purpose') {
+        contentHTML = recountData.purpose[currentLang];
+      } else if (activeRecountTab === 'structure') {
+        contentHTML = recountData.structure[currentLang];
+      } else if (activeRecountTab === 'types') {
+        contentHTML = recountData.types[currentLang];
+      } else if (activeRecountTab === 'language') {
+        contentHTML = recountData.language[currentLang];
+      } else if (activeRecountTab === 'example') {
+        contentHTML = recountData.example.map(item => `
+          <div class="example-item">
+            <div class="example-en">${item.en}</div>
+            <div class="example-id">${currentLang === 'id' ? 'Terjemahan: ' + item.id : ''}</div>
+          </div>
+        `).join('');
+      }
+
+      container.innerHTML = navHTML + `<div class="tense-section-content">${contentHTML}</div>`;
+    }
+
+    function toggleTranslate() {
+      currentLang = currentLang === 'en' ? 'id' : 'en';
+      
+      document.querySelectorAll('.lang-text').forEach(el => {
+        const text = el.getAttribute(`data-${currentLang}`);
+        if (text) el.innerHTML = text;
+      });
+
+      if (currentTopic === 'Tenses') {
+        renderTenseDetail();
+      } else if (currentTopic === 'Recount Text') {
+        renderRecountDetail();
+      }
+    }
+
+    function toggleKeyConcept() {
+      const popup = document.getElementById('key-concept-popup');
+      popup.style.display = (popup.style.display === 'none' || popup.style.display === '') ? 'block' : 'none';
+    }
+
+    function handleQuizClick() {
+      const box = document.getElementById('quiz-menu-box-content');
+      box.innerHTML = `<h2 style="color: var(--primary-green); font-family: 'Fredoka One', cursive; margin-bottom: 8px; font-size: 1.1rem;">Select Quiz Mode</h2>`;
+
+      if (currentTopic === "Narrative Text") {
+        box.innerHTML += `
+          <button class="quiz-menu-btn" onclick="openReadingHolicMenu()">1. Reading Holic</button>
+          <button class="quiz-menu-btn" onclick="openFillBlank()">2. Fill The Blank</button>
+        `;
+      } else if (currentTopic === "Recount Text") {
+        box.innerHTML += `
+          <button class="quiz-menu-btn" onclick="startQuizChallenge()">1. Froggy Jump</button>
+          <button class="quiz-menu-btn" onclick="openReadingHolicMenu()">2. Reading Holic</button>
+        `;
+      } else {
+        box.innerHTML += `
+          <button class="quiz-menu-btn" onclick="startQuizChallenge()">1. Froggy Jump</button>
+          <button class="quiz-menu-btn" onclick="openReadingHolicMenu()">2. Reading Holic</button>
+          <button class="quiz-menu-btn" onclick="openFillBlank()">3. Fill The Blank</button>
+        `;
+      }
+
+      navigateTo('quiz-menu-screen');
+    }
+
+    function updateFroggyHUD() {
+      document.getElementById('hud-lives').innerText = "❤️".repeat(lives);
+      document.getElementById('hud-score').innerText = score;
+    }
+
+    function abandonQuiz() {
+      navigateTo('quiz-menu-screen');
+    }
+
+    function startQuizChallenge() {
+      currentQuestionIndex = 0;
+      score = 0;
+      lives = 3;
+      updateFroggyHUD();
+      loadFroggyQuestion();
+      navigateTo('quiz-screen');
+    }
+
+    function loadFroggyQuestion() {
+      const qList = quizDatabase[currentTopic] || quizDatabase["Tenses"];
+      if (currentQuestionIndex >= qList.length) {
+        playWinSound();
+        showMessage(`Great job, ${playerName}!\nYou completed the quiz!\nYour Final Score: ${score}`);
+        navigateTo('submap-screen');
+        return;
+      }
+
+      const qData = qList[currentQuestionIndex];
+      document.getElementById('current-question').innerText = qData.q;
+      
+      const optionsGrid = document.getElementById('quiz-options');
+      optionsGrid.innerHTML = '';
+      
+      qData.a.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'leaf-option';
+        btn.innerText = opt;
+        btn.onclick = () => checkFroggyAnswer(idx, qData.right);
+        optionsGrid.appendChild(btn);
+      });
+
+      const hero = document.getElementById('hero-avatar');
+      hero.className = 'character-token';
+      document.getElementById('frog-avatar-img').src = "https://i.imgur.com/kK1nuwr.png";
+      document.getElementById('splash-effect').classList.remove('active');
+    }
+
+    function checkFroggyAnswer(selectedIndex, correctIndex) {
+      const hero = document.getElementById('hero-avatar');
+      const frogImg = document.getElementById('frog-avatar-img');
+      
+      if (selectedIndex === correctIndex) {
+        score += 20;
+        playJumpSound();
+        frogImg.src = "https://i.imgur.com/kK1nuwr.png";
+        hero.classList.add('jump');
+        
+        setTimeout(() => {
+          hero.classList.remove('jump');
+          currentQuestionIndex++;
+          updateFroggyHUD();
+          loadFroggyQuestion();
+        }, 500);
+
+      } else {
+        lives--;
+        playSplashSound();
+        frogImg.src = "https://i.imgur.com/TEjEe7j.png";
+        hero.classList.add('splash');
+        document.getElementById('splash-effect').classList.add('active');
+        updateFroggyHUD();
+
+        setTimeout(() => {
+          if (lives <= 0) {
+            showMessage(`Game Over!\n\nYour Final Score: ${score}`);
+            navigateTo('submap-screen');
+          } else {
+            hero.className = 'character-token';
+            frogImg.src = "https://i.imgur.com/kK1nuwr.png";
+            document.getElementById('splash-effect').classList.remove('active');
+          }
+        }, 1000);
+      }
+    }
+
+    function openReadingHolicMenu() {
+      const listContainer = document.getElementById('rh-text-list');
+      listContainer.innerHTML = '';
+
+      const texts = readingHolicDatabase[currentTopic] || readingHolicDatabase["Tenses"];
+      texts.forEach((t, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'quiz-menu-btn';
+        btn.innerText = `Text ${index + 1}: ${t.title}`;
+        btn.onclick = () => openRHText(index);
+        listContainer.appendChild(btn);
+      });
+
+      navigateTo('rh-menu-screen');
+    }
+
+    function toggleRHVocab() {
+      const popup = document.getElementById('rh-vocab-popup');
+      popup.style.display = (popup.style.display === 'none' || popup.style.display === '') ? 'block' : 'none';
+    }
+
+    function openRHText(index) {
+      const textData = (readingHolicDatabase[currentTopic] || readingHolicDatabase["Tenses"])[index];
+      
+      document.getElementById('rh-title').innerText = textData.title;
+      document.getElementById('rh-body').innerHTML = textData.text;
+      document.getElementById('rh-vocab-content').innerHTML = textData.vocab;
+      
+      const vocabBtn = document.getElementById('rh-vocab-btn');
+      const vocabPopup = document.getElementById('rh-vocab-popup');
+      vocabBtn.style.display = 'flex';
+      vocabPopup.style.display = 'none';
+
+      const essayContainer = document.getElementById('rh-essay-container');
+      essayContainer.innerHTML = '';
+
+      textData.questions.forEach((q) => {
+        const qBox = document.createElement('div');
+        qBox.style.marginBottom = "6px";
+        qBox.style.padding = "8px 10px";
+        qBox.style.background = "#e8f5e9";
+        qBox.style.borderRadius = "8px";
+        qBox.style.border = "1px solid var(--light-green)";
+        qBox.innerHTML = `
+          <div style="font-weight: bold; font-size: 0.8rem; color: var(--primary-green); line-height: 1.3;">${q}</div>
+        `;
+        essayContainer.appendChild(qBox);
+      });
+
+      navigateTo('rh-text-screen');
+    }
+
+    function openFillBlank() {
+      loadFillBlankStory();
+      navigateTo('fill-blank-screen');
+    }
+
+    function loadFillBlankStory() {
+      const data = fillBlankDatabase[currentTopic] || fillBlankDatabase["Narrative Text"];
+      
+      document.getElementById('fb-story-title').innerText = data.title;
+      selectedBlankId = null;
+
+      const bankEl = document.getElementById('fb-word-bank');
+      bankEl.innerHTML = '';
+      
+      const shuffledWords = [...data.wordBox].sort(() => Math.random() - 0.5);
+      
+      shuffledWords.forEach(word => {
+        const btn = document.createElement('div');
+        btn.className = 'fb-word';
+        btn.innerText = word;
+        btn.dataset.word = word;
+        btn.onclick = () => handleWordBoxClick(btn, word);
+        bankEl.appendChild(btn);
+      });
+
+      const storyContainer = document.getElementById('fb-story-container');
+      storyContainer.innerHTML = '';
+
+      data.sentences.forEach((item, index) => {
+        const p = document.createElement('div');
+        p.style.marginBottom = '8px';
+
+        const spanBefore = document.createElement('span');
+        spanBefore.innerText = item.textBefore;
+
+        const blank = document.createElement('span');
+        blank.className = 'fb-blank';
+        blank.id = `fb-blank-${index}`;
+        blank.dataset.index = index;
+        blank.dataset.answer = item.answer;
+        blank.innerText = '[____]';
+        blank.onclick = () => selectBlank(blank);
+
+        const spanAfter = document.createElement('span');
+        spanAfter.innerText = item.textAfter;
+
+        p.appendChild(spanBefore);
+        p.appendChild(blank);
+        p.appendChild(spanAfter);
+        storyContainer.appendChild(p);
+      });
+    }
+
+    function selectBlank(blankEl) {
+      if (blankEl.classList.contains('filled')) {
+        const wordToRestore = blankEl.innerText;
+        document.querySelectorAll('.fb-word').forEach(w => {
+          if (w.dataset.word === wordToRestore && w.classList.contains('used')) {
+            w.classList.remove('used');
+          }
+        });
+        blankEl.innerText = '[____]';
+        blankEl.classList.remove('filled');
+      }
+
+      document.querySelectorAll('.fb-blank').forEach(b => b.classList.remove('selected-blank'));
+      blankEl.classList.add('selected-blank');
+      selectedBlankId = blankEl.id;
+    }
+
+    function handleWordBoxClick(wordBtn, word) {
+      if (!selectedBlankId) {
+        const firstEmpty = document.querySelector('.fb-blank:not(.filled)');
+        if (firstEmpty) {
+          selectBlank(firstEmpty);
+        } else {
+          showMessage("All blanks are filled! Click 'Submit & Check Score' to see your results.");
+          return;
+        }
+      }
+
+      const activeBlank = document.getElementById(selectedBlankId);
+      if (!activeBlank) return;
+
+      activeBlank.innerText = word;
+      activeBlank.classList.add('filled');
+      activeBlank.classList.remove('selected-blank');
+      wordBtn.classList.add('used');
+
+      selectedBlankId = null;
+      const nextEmpty = document.querySelector('.fb-blank:not(.filled)');
+      if (nextEmpty) {
+        selectBlank(nextEmpty);
+      }
+    }
+
+    function checkAllFillBlank() {
+      const blanks = document.querySelectorAll('.fb-blank');
+      let filledCount = 0;
+      let totalScore = 0;
+
+      blanks.forEach(b => {
+        if (b.classList.contains('filled')) filledCount++;
+      });
+
+      if (filledCount < blanks.length) {
+        showMessage(`Please fill all ${blanks.length} blank spaces before submitting!`);
+        return;
+      }
+
+      let correctCount = 0;
+      blanks.forEach(b => {
+        if (b.innerText.trim().toLowerCase() === b.dataset.answer.trim().toLowerCase()) {
+          correctCount++;
+          totalScore += 10;
+          b.style.backgroundColor = '#d4edda';
+          b.style.borderColor = '#28a745';
+          b.style.color = '#155724';
+        } else {
+          b.style.backgroundColor = '#f8d7da';
+          b.style.borderColor = '#dc3545';
+          b.style.color = '#721c24';
+        }
+      });
+
+      if (correctCount === blanks.length) {
+        playWinSound();
+      } else {
+        playSplashSound();
+      }
+
+      showMessage(`Quiz Complete!\n\nCorrect Answers: ${correctCount} / ${blanks.length}\nYour Final Score: ${totalScore}`);
+    }
+  </script>
+</body>
+</html>
+```
